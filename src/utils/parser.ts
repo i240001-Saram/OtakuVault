@@ -65,13 +65,12 @@ export function parseFilename(filename: string): ParsedAnime {
     title = name.substring(0, matchSpecial.index).trim()
   }
   else {
-    //STEP 3:THE FAIL-SAFE (Dash Fallback)
-    //If no numbers or keywords found, but there is a " - ", split there!
+    //STEP 3:Fail-Safe Case
+    //If no numbers or keywords found, but there is a " - ", split at that location.
     //Example: "Monster - The Ending" -> Title: "Monster", Ep: "The Ending"
     const dashIndex = name.indexOf(' - ')
     if (dashIndex !== -1) {
        title = name.substring(0, dashIndex).trim()
-       //+3 skips " - "
        episode = name.substring(dashIndex + 3).trim()
     }
   }

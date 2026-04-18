@@ -1,8 +1,11 @@
-import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import fs from 'fs/promises'
+import { initDB, insertSeries, insertEpisode, getAllLibraryData } from './database'
+import { fetchAnimeMetadata, delay } from './jikan'
+import { parseFilename } from '../src/utils/parser'
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -27,6 +30,10 @@ ipcMain.handle('dialog:openDirectory', async () => {
   return filePaths[0]
 })
 
+ipcMain.handle('db:getLibrary', () => {
+  return getAllLibraryData()
+})
+
 ipcMain.handle('files:scan', async (_, dirPath) => {
   async function getFiles(dir: string): Promise<string[]> {
     const dirents = await fs.readdir(dir, { withFileTypes: true })
@@ -39,10 +46,37 @@ ipcMain.handle('files:scan', async (_, dirPath) => {
 
   try {
     const allFiles = await getFiles(dirPath)
-    return allFiles
-      .filter((file) => /\.(mkv|mp4|avi|ts)$/i.test(path.extname(file)))
-      .map((file) => path.basename(file))
+    const videoFiles = allFiles.filter((file) => /\.(mkv|mp4|avi|ts)$/i.test(path.extname(file)))
+
+    const seriesToFetch = new Map<number, string>()
+
+    for (const file of videoFiles) {
+      const filename = path.basename(file)
+      const parsed = parseFilename(filename)
+
+      const seasonInt = parseInt(parsed.season)
+      const searchTitle = seasonInt > 1 
+        ? `${parsed.title} Season ${seasonInt}` 
+        : parsed.title
+
+      const seriesData = insertSeries(searchTitle)
+      insertEpisode(seriesData.id, parsed.season, parsed.episode, file)
+
+      if (seriesData.needsFetch) {
+        seriesToFetch.set(seriesData.id, searchTitle)
+      }
+    }
+
+    ;(async () => {
+      for (const [id, title] of seriesToFetch.entries()) {
+        await fetchAnimeMetadata(id, title)
+        await delay(1500) 
+      }
+    })()
+
+    return getAllLibraryData()
   } catch (error) {
+    console.error("Scanning Error:", error)
     return []
   }
 })
@@ -85,4 +119,7 @@ app.on('activate', () => {
   }
 })
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  initDB()
+  createWindow()
+})
