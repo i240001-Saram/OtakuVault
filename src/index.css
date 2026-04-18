@@ -1,0 +1,27 @@
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent double scrollbars */
+  background-color: #1e1e1e;
+}
+
+* {
+  box-sizing: border-box; /* Ensures padding doesn't break sizing */
+}
+
+/* Custom Scrollbar for a slick look */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #252526; 
+}
+::-webkit-scrollbar-thumb {
+  background: #444; 
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
