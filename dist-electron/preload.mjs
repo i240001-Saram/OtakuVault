@@ -1,8 +1,1 @@
-"use strict";
-const electron = require("electron");
-const api = {
-  selectFolder: () => electron.ipcRenderer.invoke("dialog:openDirectory"),
-  scanFiles: (path) => electron.ipcRenderer.invoke("files:scan", path),
-  getLibrary: () => electron.ipcRenderer.invoke("db:getLibrary")
-};
-electron.contextBridge.exposeInMainWorld("api", api);
+"use strict";const a=require("electron"),r={selectFolder:()=>a.ipcRenderer.invoke("dialog:openDirectory"),scanFiles:e=>a.ipcRenderer.invoke("files:scan",e),getLibrary:()=>a.ipcRenderer.invoke("db:getLibrary"),onMetadataUpdate:e=>{a.ipcRenderer.removeAllListeners("metadata-updated"),a.ipcRenderer.on("metadata-updated",()=>e())},toggleFavorite:e=>a.ipcRenderer.invoke("db:toggleFavorite",e),toggleWatched:e=>a.ipcRenderer.invoke("db:toggleWatched",e),updateRating:(e,i)=>a.ipcRenderer.invoke("db:updateRating",e,i),cleanLibrary:()=>a.ipcRenderer.invoke("db:cleanLibrary"),nukeDatabase:()=>a.ipcRenderer.invoke("db:nukeDatabase"),saveSettings:e=>a.ipcRenderer.invoke("app:saveSettings",e),updateWatchedStatus:(e,i)=>a.ipcRenderer.invoke("db:updateWatchedStatus",e,i),playVideo:e=>a.ipcRenderer.invoke("app:playVideo",e)};a.contextBridge.exposeInMainWorld("api",r);

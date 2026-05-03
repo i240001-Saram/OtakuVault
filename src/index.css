@@ -3,15 +3,14 @@ html, body, #root {
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Prevent double scrollbars */
+  overflow: hidden;
   background-color: #1e1e1e;
 }
 
 * {
-  box-sizing: border-box; /* Ensures padding doesn't break sizing */
+  box-sizing: border-box;
 }
 
-/* Custom Scrollbar for a slick look */
 ::-webkit-scrollbar {
   width: 10px;
 }
